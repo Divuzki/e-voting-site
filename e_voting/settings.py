@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'True' in os.getenv("DEBUG")
+DEBUG = False
 # DEBUG = 'True' in os.getenv("DEBUG")
 USE_S3 = 'True' in os.getenv("USE_S3")
 USE_DB = 'True' in os.getenv("USE_DB")
