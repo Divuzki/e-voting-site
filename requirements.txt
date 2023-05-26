@@ -13,3 +13,5 @@ boto3
 boto
 gunicorn
 s3transfer
+psycopg2-binary
+psycopg2

@@ -114,5 +114,5 @@ dmypy.json
 media/
 voting/migrations/*
 account/migrations/*
-# static/
+static/
 # README.md
