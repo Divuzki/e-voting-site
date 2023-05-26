@@ -13,7 +13,7 @@ from django.conf import settings
 
 # os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 
-from django_renderpdf.views import PDFView
+# from django_renderpdf.views import PDFView
 
 
 def find_n_winners(data, n):
@@ -35,65 +35,65 @@ def find_n_winners(data, n):
     return ", &nbsp;".join(final_list)
 
 
-class PrintView(PDFView):
-    template_name = "admin/print.html"
-    prompt_download = True
+# class PrintView(PDFView):
+#     template_name = "admin/print.html"
+#     prompt_download = True
 
-    @property
-    def download_name(self):
-        return "result.pdf"
+#     @property
+#     def download_name(self):
+#         return "result.pdf"
 
-    def get_context_data(self, *args, **kwargs):
-        title = "E-voting"
-        try:
-            file = open(settings.ELECTION_TITLE_PATH, "r")
-            title = file.read()
-        except:
-            pass
-        context = super().get_context_data(*args, **kwargs)
-        position_data = {}
-        for position in Position.objects.all():
-            candidate_data = []
-            winner = ""
-            for candidate in Candidate.objects.filter(position=position):
-                this_candidate_data = {}
-                votes = Votes.objects.filter(candidate=candidate).count()
-                this_candidate_data["name"] = candidate.fullname
-                this_candidate_data["votes"] = votes
-                candidate_data.append(this_candidate_data)
-            print(
-                "Candidate Data For  ", str(position.name), " = ", str(candidate_data)
-            )
-            # ! Check Winner
-            if len(candidate_data) < 1:
-                winner = "Position does not have candidates"
-            else:
-                winner = max(candidate_data, key=lambda x: x["votes"])
-                if winner["votes"] == 0:
-                    winner = "No one voted for this yet position, yet."
-                else:
-                    """
-                    https://stackoverflow.com/questions/18940540/how-can-i-count-the-occurrences-of-an-item-in-a-list-of-dictionaries
-                    """
-                    count = sum(
-                        1 for d in candidate_data if d.get("votes") == winner["votes"]
-                    )
-                    if count > 1:
-                        winner = (
-                            f"There are {count} candidates with {winner['votes']} votes"
-                        )
-                    else:
-                        winner = "Winner : " + winner["name"]
-            print(
-                "Candidate Data For  ", str(position.name), " = ", str(candidate_data)
-            )
-            position_data[position.name] = {
-                "candidate_data": candidate_data,
-                "winner": winner,
-            }
-        context["positions"] = position_data
-        print(context)
-        return context
+#     def get_context_data(self, *args, **kwargs):
+#         title = "E-voting"
+#         try:
+#             file = open(settings.ELECTION_TITLE_PATH, "r")
+#             title = file.read()
+#         except:
+#             pass
+#         context = super().get_context_data(*args, **kwargs)
+#         position_data = {}
+#         for position in Position.objects.all():
+#             candidate_data = []
+#             winner = ""
+#             for candidate in Candidate.objects.filter(position=position):
+#                 this_candidate_data = {}
+#                 votes = Votes.objects.filter(candidate=candidate).count()
+#                 this_candidate_data["name"] = candidate.fullname
+#                 this_candidate_data["votes"] = votes
+#                 candidate_data.append(this_candidate_data)
+#             print(
+#                 "Candidate Data For  ", str(position.name), " = ", str(candidate_data)
+#             )
+#             # ! Check Winner
+#             if len(candidate_data) < 1:
+#                 winner = "Position does not have candidates"
+#             else:
+#                 winner = max(candidate_data, key=lambda x: x["votes"])
+#                 if winner["votes"] == 0:
+#                     winner = "No one voted for this yet position, yet."
+#                 else:
+#                     """
+#                     https://stackoverflow.com/questions/18940540/how-can-i-count-the-occurrences-of-an-item-in-a-list-of-dictionaries
+#                     """
+#                     count = sum(
+#                         1 for d in candidate_data if d.get("votes") == winner["votes"]
+#                     )
+#                     if count > 1:
+#                         winner = (
+#                             f"There are {count} candidates with {winner['votes']} votes"
+#                         )
+#                     else:
+#                         winner = "Winner : " + winner["name"]
+#             print(
+#                 "Candidate Data For  ", str(position.name), " = ", str(candidate_data)
+#             )
+#             position_data[position.name] = {
+#                 "candidate_data": candidate_data,
+#                 "winner": winner,
+#             }
+#         context["positions"] = position_data
+#         print(context)
+#         return context
 
 
 def dashboard(request):
