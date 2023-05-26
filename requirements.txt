@@ -15,3 +15,4 @@ gunicorn
 s3transfer
 psycopg2-binary
 psycopg2
+django-cors-headers

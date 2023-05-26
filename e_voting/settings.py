@@ -17,7 +17,7 @@ import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -26,20 +26,21 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
 DEBUG = False
-USE_S3 = 'True' in os.getenv("USE_S3")
-USE_DB = 'True' in os.getenv("USE_DB")
+USE_S3 = "True" in os.getenv("USE_S3")
+USE_DB = "True" in os.getenv("USE_DB")
 
 ALLOWED_HOSTS = ["*"]
 
 CSRF_COOKIE_SECURE = DEBUG == False
 SESSION_COOKIE_SECURE = DEBUG == False
 SECURE_SSL_REDIRECT = DEBUG == False
-SECURE_HSTS_SECONDS = 518400 if(DEBUG == False) else None
+SECURE_HSTS_SECONDS = 518400 if (DEBUG == False) else None
 SECURE_HSTS_INCLUDE_SUBDOMAINS = DEBUG == False
 SECURE_HSTS_PRELOAD = DEBUG == False
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if(DEBUG == False) else None
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https") if (DEBUG == False) else None
+)
 
 # Application definition
 
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_cleanup.apps.CleanupConfig",
+    "corsheaders",
     # My Created Applications
     "account.apps.AccountConfig",
     "voting.apps.VotingConfig",
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -103,7 +107,7 @@ DATABASES = {
 
 if USE_DB == True:
     db_from_env = dj_database_url.config(conn_max_age=600)
-    DATABASES['default'].update(db_from_env)
+    DATABASES["default"].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -141,7 +145,7 @@ if USE_S3:
     AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
     AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL")
-    if AWS_DEFAULT_ACL == 'None':
+    if AWS_DEFAULT_ACL == "None":
         AWS_DEFAULT_ACL = None
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.eu-west-2.amazonaws.com"
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
@@ -187,3 +191,26 @@ SEND_OTP = False  # If you toggle this to False, Kindly use 0000 as your OTP
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+if DEBUG == True:
+    CORS_ORIGIN_ALLOW_ALL = True
+else:
+    CORS_ORIGIN_WHITELIST = ("https://vote.nimelssa.com",)
+
+CORS_ALLOW_METHODS = (
+    "GET",
+    "POST",
+    "OPTIONS",
+)
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
