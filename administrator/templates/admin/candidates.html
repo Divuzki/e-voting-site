@@ -22,7 +22,7 @@
     <tr>
       <td>{{ candidate.fullname }}</td>
       <td>{{ candidate.position }}</td>
-      <td><img src="/media/{{ candidate.photo }}" width="80" height="80" alt="{{ candidate.fullname }}'s Avatar" class="img img-fluid"></td>
+      <td><img src="{{ candidate.photo.url }}" width="80" height="80" alt="{{ candidate.fullname }}'s Avatar" class="img img-fluid"></td>
       
       <td>
         <button class='btn btn-success btn-sm edit btn-flat' data-id='{{ candidate.id }}'><i class='fa fa-edit'></i> Edit</button>
