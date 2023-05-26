@@ -186,11 +186,9 @@
           dataType: 'json',
           success: function(response) {
               $('.id').val(response.id);
-              $('#edit_firstname').val(response.first_name);
-              $('#edit_lastname').val(response.last_name);
-              $('#edit_phone').val(response.phone);
+              $('#edit_username').val(response.username);
+              $('#edit_mat_num').val(response.mat_num);
               $('#edit_email').val(response.email);
-              $('.fullname').html(response.first_name + ' ' + response.last_name);
           }
       });
   }

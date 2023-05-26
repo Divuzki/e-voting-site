@@ -30,74 +30,75 @@ def generate_ballot(display_controls=False):
         position_name = slugify(name)
         candidates = Candidate.objects.filter(position=position)
         for candidate in candidates:
-            instruction = "Select only one candidate"
-            input_box = (
-                '<input value="'
-                + str(candidate.id)
-                + '" type="radio" class="flat-red '
-                + position_name
-                + '" name="'
-                + position_name
-                + '">'
+            if candidate is not None:
+                instruction = "Select only one candidate"
+                input_box = (
+                    '<input value="'
+                    + str(candidate.id)
+                    + '" type="radio" class="flat-red '
+                    + position_name
+                    + '" name="'
+                    + position_name
+                    + '">'
+                )
+            image = str(settings.MEDIA_URL + candidate.photo)
+
+            candidates_data = (
+                candidates_data
+                + "<li>"
+                + input_box
+                + '<img src="'
+                + image
+                + '" height="60px" width="60px" style="object-fit: cover;border-radius: 50%" class="clist"><span class="cname clist">'
+                + candidate.fullname
+                + "</span></li>"
             )
-        image = settings.MEDIA_URL + str(candidate.photo)
-
-        candidates_data = (
-            candidates_data
-            + "<li>"
-            + input_box
-            + '<img src="'
-            + image
-            + '" height="60px" width="60px" style="object-fit: cover;border-radius: 50%" class="clist"><span class="cname clist">'
-            + candidate.fullname
-            + "</span></li>"
-        )
-        up = ""
-        if position.priority == 1:
-            up = "disabled"
-        down = ""
-        if position.priority == positions.count():
-            down = "disabled"
-        output = (
-            output
-            + f"""<div class="row">	<div class="col-xs-12"><div class="box box-solid" id="{position.id}">
-             <div class="box-header with-border">
-            <h3 class="box-title"><b>{name}</b></h3>"""
-        )
-
-        if display_controls:
+            up = ""
+            if position.priority == 1:
+                up = "disabled"
+            down = ""
+            if position.priority == positions.count():
+                down = "disabled"
             output = (
                 output
-                + f""" <div class="pull-right box-tools">
-        <button type="button" class="btn btn-default btn-sm moveup" data-id="{position.id}" {up}><i class="fa fa-arrow-up"></i> </button>
-        <button type="button" class="btn btn-default btn-sm movedown" data-id="{position.id}" {down}><i class="fa fa-arrow-down"></i></button>
-        </div>"""
+                + f"""<div class="row">	<div class="col-xs-12"><div class="box box-solid" id="{position.id}">
+                <div class="box-header with-border">
+                <h3 class="box-title"><b>{name}</b></h3>"""
             )
 
-        output = (
-            output
-            + f"""</div>
-        <div class="box-body">
-        <p>{instruction}
-        <span class="pull-right">
-        <button type="button" class="btn btn-success btn-sm btn-flat reset" data-desc="{position_name}"><i class="fa fa-refresh"></i> Reset</button>
-        </span>
-        </p>
-        <div id="candidate_list">
-        <ul>
-        {candidates_data}
-        </ul>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        """
-        )
-        position.priority = num
-        position.save()
-        num = num + 1
-        candidates_data = ""
+            if display_controls:
+                output = (
+                    output
+                    + f""" <div class="pull-right box-tools">
+            <button type="button" class="btn btn-default btn-sm moveup" data-id="{position.id}" {up}><i class="fa fa-arrow-up"></i> </button>
+            <button type="button" class="btn btn-default btn-sm movedown" data-id="{position.id}" {down}><i class="fa fa-arrow-down"></i></button>
+            </div>"""
+                )
+
+            output = (
+                output
+                + f"""</div>
+            <div class="box-body">
+            <p>{instruction}
+            <span class="pull-right">
+            <button type="button" class="btn btn-success btn-sm btn-flat reset" data-desc="{position_name}"><i class="fa fa-refresh"></i> Reset</button>
+            </span>
+            </p>
+            <div id="candidate_list">
+            <ul>
+            {candidates_data}
+            </ul>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            """
+            )
+            position.priority = num
+            position.save()
+            num = num + 1
+            candidates_data = ""
     return output
 
 
