@@ -41,7 +41,7 @@ def generate_ballot(display_controls=False):
                     + position_name
                     + '">'
                 )
-            image = str(settings.MEDIA_URL + candidate.photo)
+            image = str(candidate.photo.url)
 
             candidates_data = (
                 candidates_data
