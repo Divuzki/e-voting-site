@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = 'True' in os.getenv("DEBUG")
 # DEBUG = 'True' in os.getenv("DEBUG")
 USE_S3 = 'True' in os.getenv("USE_S3")
 USE_DB = 'True' in os.getenv("USE_DB")
@@ -40,9 +40,6 @@ SECURE_HSTS_SECONDS = 518400 if(DEBUG == False) else None
 SECURE_HSTS_INCLUDE_SUBDOMAINS = DEBUG == False
 SECURE_HSTS_PRELOAD = DEBUG == False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if(DEBUG == False) else None
-
-CONN_MAX_AGE = 8600
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10000000
 
 # Application definition
 
