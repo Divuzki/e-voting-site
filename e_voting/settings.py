@@ -12,22 +12,36 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "%6lp_p!%r$7t-2ql5hc5(r@)8u_fc+6@ugxcnz=h=b(fn#3$p9"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'True' in os.getenv("DEBUG")
+USE_S3 = 'True' in os.getenv("USE_S3")
+USE_DB = 'True' in os.getenv("USE_DB")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+CSRF_COOKIE_SECURE = DEBUG == False
+SESSION_COOKIE_SECURE = DEBUG == False
+SECURE_SSL_REDIRECT = DEBUG == False
+SECURE_HSTS_SECONDS = 518400 if(DEBUG == False) else None
+SECURE_HSTS_INCLUDE_SUBDOMAINS = DEBUG == False
+SECURE_HSTS_PRELOAD = DEBUG == False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if(DEBUG == False) else None
+
+CONN_MAX_AGE = 8600
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10000000
 
 # Application definition
 
@@ -46,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -86,28 +101,18 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'e_voting',
-    #     'HOST': '127.0.0.1',
-    #     'USER': 'root',
-    #     'PASSWORD': ''
-    # }
 }
 
+if USE_DB == True:
+    db_from_env = dj_database_url.config(conn_max_age=600)
+    DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
@@ -130,13 +135,45 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+# https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = "/static/"
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_DEFAULT_ACL = os.getenv("AWS_DEFAULT_ACL")
+    if AWS_DEFAULT_ACL == 'None':
+        AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.eu-west-2.amazonaws.com"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_S3_SECURE_URLS = True
 
-MEDIA_URL = "/media/"
+    # s3 static settings
+    STATIC_LOCATION = "static"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
+    STATICFILES_STORAGE = "e_voting.storage_backends.StaticStorage"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    # s3 cached static settings
+    COMPRESS_URL = STATIC_URL
+    COMPRESS_ROOT = BASE_DIR / "staticfiles"
+    COMPRESS_STORAGE = "e_voting.storage_backends.CachedStaticS3BotoStorage"
+
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = "media"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
+    DEFAULT_FILE_STORAGE = "e_voting.storage_backends.PublicMediaStorage"
+
+    # s3 private media settings
+    PRIVATE_MEDIA_LOCATION = "private"
+    PRIVATE_FILE_STORAGE = "e_voting.storage_backends.PrivateMediaStorage"
+
+elif not USE_S3:
+    STATIC_URL = "/static/"
+    MEDIA_URL = "/media/"
+    STATIC_ROOT = BASE_DIR / "static-root"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 AUTH_USER_MODEL = "account.CustomUser"
