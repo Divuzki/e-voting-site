@@ -1,9 +1,27 @@
 {% extends "voting/base.html" %}
+{% load static %}
 {% block content %}
 
     <div class="login-box">
-        <div class="login-logo">
-            <b>Nimelssa Voting System</b>
+        <div class="login-logo" style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+            ">
+            <!-- department logo and school logo -->
+            <img src="{% static 'images/logo.png' %}" alt="BIU Logo" class="img-circle" width="100px"
+                height="100px">
+                <!-- divider -->
+                <span style="
+                border-left: 5px solid #eae1e174;
+                height: 100px;
+                margin-left: 10px;
+                margin-right: 10px;
+
+                "></span>
+            <img src="{% static 'images/biu-logo.png' %}" alt="NIMELSSA Logo" class="img-circle" width="100px"
+                height="100px">
         </div>
 
         <div class="login-box-body">
