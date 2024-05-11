@@ -307,6 +307,11 @@ def submit_ballot(request):
     if request.method != "POST":
         messages.error(request, "Please, browse the system properly")
         return redirect(reverse("show_ballot"))
+    
+    # check cookie to prevent multiple voting
+    if request.COOKIES.get("voted"):
+        messages.error(request, "You cannot vote twice 🌚 na")
+        return redirect(reverse("voterDashboard"))
 
     # Verify if the voter has voted or not
     voter = request.user.voter
@@ -355,5 +360,12 @@ def submit_ballot(request):
         # Update Voter profile to voted
         voter.voted = True
         voter.save()
+        # set cookie to prevent multiple voting
+
+        from django.http import HttpResponse
+
+        response = HttpResponse("Cookie Set")
+        response.set_cookie("voted", "true")
+
         messages.success(request, "Thanks for voting")
         return redirect(reverse("voterDashboard"))
